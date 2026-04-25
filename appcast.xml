@@ -7,15 +7,15 @@
     <language>zh-Hant</language>
     <item>
       <title>Version 1.0.0</title>
-      <pubDate>Sat, 25 Apr 2026 09:22:04 +0000</pubDate>
+      <pubDate>Sat, 25 Apr 2026 09:54:18 +0000</pubDate>
       <sparkle:version>1.0.0</sparkle:version>
       <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
       <enclosure
         url="https://github.com/JakeChang/write-pilot/releases/download/v1.0.0/Write-Pilot-1.0.0.dmg"
-        length="3326951"
+        length="3356408"
         type="application/x-apple-diskimage"
-        sparkle:edSignature="tGHyo6672nUfAq++WsJTgixlX3QvAvZufu8v4Ib6DO2H1gHYmzQL19YMc36d8t2eJwBQ9shLS5qA3ijDfVw1Bw=="
+        sparkle:edSignature="70YmLSfIazV0XUbNCLz55xCkKsQj0pmTNcBoegCodg/olu2oK+UwuAkFSRHVBnsTkvAtWSJ+JHI6PaZGJ27aDw=="
       />
     </item>
   </channel>
