@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Write Pilot — macOS 原生 AI 寫作工具</title>
+  <meta name="description" content="macOS 原生寫作工具，整合 Markdown 編輯器、檔案管理與 AI 寫作助手，專為中文寫作者設計的三欄式寫作環境。" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'sans-serif'],
+            mono: ['"SF Mono"', '"Fira Code"', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    .gradient-text {
+      background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .glow { box-shadow: 0 0 60px rgba(124, 58, 237, 0.3); }
+  </style>
+</head>
+<body class="bg-[#06060b] text-white font-sans antialiased">
+
+  <!-- NAV -->
+  <nav class="fixed top-0 inset-x-0 z-50 glass border-b border-white/10">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2.5 font-bold text-base">
+        <div class="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+          </svg>
+        </div>
+        Write Pilot
+      </a>
+      <ul class="hidden md:flex items-center gap-8 text-sm text-white/60">
+        <li><a href="#features" class="hover:text-white transition-colors">功能</a></li>
+        <li><a href="#setup" class="hover:text-white transition-colors">設定</a></li>
+        <li><a href="#install" class="hover:text-white transition-colors">安裝</a></li>
+        <li>
+          <a href="https://github.com/JakeChang/write-pilot" target="_blank"
+             class="flex items-center gap-1.5 hover:text-white transition-colors">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            GitHub
+          </a>
+        </li>
+      </ul>
+      <a href="https://github.com/JakeChang/write-pilot/releases/latest" target="_blank"
+         class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+        下載
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="pt-40 pb-24 px-6 text-center">
+    <div class="max-w-3xl mx-auto">
+      <div class="inline-flex items-center gap-2 bg-brand-600/10 border border-brand-500/20 text-brand-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 tracking-wide uppercase">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
+        macOS 原生 App · 免費開源
+      </div>
+
+      <h1 class="text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
+        <span class="gradient-text">AI 驅動的</span><br/>
+        <span class="gradient-text">Markdown 寫作工具</span>
+      </h1>
+
+      <p class="text-lg text-white/50 max-w-xl mx-auto mb-10 leading-relaxed">
+        Write Pilot 是一款三欄式寫作環境，整合 Markdown 編輯器、檔案管理與 AI 寫作助手，基於 <code class="text-brand-400 bg-brand-600/10 px-1.5 py-0.5 rounded text-sm">SwiftUI + NSTextView</code> 打造，專為中文寫作者設計。
+      </p>
+
+      <div class="flex flex-wrap gap-3 justify-center mb-6">
+        <a href="https://github.com/JakeChang/write-pilot/releases/latest" target="_blank"
+           class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 glow text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          下載 DMG
+        </a>
+        <a href="https://github.com/JakeChang/write-pilot" target="_blank"
+           class="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 text-sm">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          查看原始碼
+        </a>
+      </div>
+
+      <p class="text-xs text-white/30">需要 macOS 15.7 或以上 · Apple Silicon &amp; Intel</p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <p class="text-xs font-bold uppercase tracking-widest text-brand-400 mb-3">功能特色</p>
+      <h2 class="text-4xl font-bold tracking-tight mb-14">專注寫作的一切所需</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div class="col-span-1 sm:col-span-2 bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-brand-500/40 transition-colors">
+          <div class="w-9 h-9 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2">Markdown 編輯器</h3>
+          <p class="text-sm text-white/50 leading-relaxed">NSTextView 核心引擎，語法高亮、即時預覽，完整支援中日韓輸入法（CJK IME），不會打斷你的輸入節奏。</p>
+        </div>
+
+        <div class="col-span-1 sm:col-span-2 bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-brand-500/40 transition-colors">
+          <div class="w-9 h-9 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2">AI 寫作助手</h3>
+          <p class="text-sm text-white/50 leading-relaxed">整合 Google Gemma 4 AI 模型，提供寫作建議、內容分析、來源偵測三種模式，串流輸出即時回饋，幫助你突破寫作瓶頸。</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-brand-500/40 transition-colors">
+          <div class="w-9 h-9 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2">檔案樹管理</h3>
+          <p class="text-sm text-white/50 leading-relaxed">工作區資料夾瀏覽，支援新增、重新命名、刪除檔案與資料夾，一目了然。</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-brand-500/40 transition-colors">
+          <div class="w-9 h-9 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2">即時預覽</h3>
+          <p class="text-sm text-white/50 leading-relaxed">WKWebView 即時渲染 Markdown，支援深色模式，所見即所得。</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-brand-500/40 transition-colors">
+          <div class="w-9 h-9 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2">大綱與計畫</h3>
+          <p class="text-sm text-white/50 leading-relaxed">從 Markdown 大綱自動生成章節檔案結構，讓長篇寫作井然有序。</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-brand-500/40 transition-colors">
+          <div class="w-9 h-9 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2">圖片拖放</h3>
+          <p class="text-sm text-white/50 leading-relaxed">拖入圖片自動複製至 <code class="text-brand-400 bg-brand-600/10 px-1 py-0.5 rounded text-xs">images/</code> 並插入 Markdown 語法。</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-brand-500/40 transition-colors">
+          <div class="w-9 h-9 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2">寫作統計</h3>
+          <p class="text-sm text-white/50 leading-relaxed">Menu Bar 即時顯示每日字數，區分手打與貼上字數，追蹤你的創作產出。</p>
+        </div>
+
+        <div class="col-span-1 sm:col-span-2 bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-brand-500/40 transition-colors">
+          <div class="w-9 h-9 rounded-lg bg-brand-600/20 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2">自動儲存與更新</h3>
+          <p class="text-sm text-white/50 leading-relaxed">1.5 秒防抖自動存檔，搭配來源追蹤 sidecar，不再擔心忘記儲存。內建 Sparkle 自動更新，永遠使用最新版本。</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-6"><div class="border-t border-white/10"></div></div>
+
+  <!-- SETUP -->
+  <section id="setup" class="py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs font-bold uppercase tracking-widest text-brand-400 mb-3">快速設定</p>
+      <h2 class="text-4xl font-bold tracking-tight mb-14">設定 AI 寫作助手</h2>
+
+      <div class="flex flex-col gap-8">
+
+        <div class="flex gap-5">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-600/20 border border-brand-500/30 text-brand-400 font-bold text-sm flex items-center justify-center">1</div>
+          <div class="pt-1">
+            <h3 class="font-semibold text-base mb-1.5">取得 Google AI API Key</h3>
+            <p class="text-sm text-white/50 leading-relaxed">
+              開啟 <a href="https://aistudio.google.com/" target="_blank" class="text-brand-400 hover:text-brand-300 transition-colors">aistudio.google.com</a>，使用 Google 帳號登入後，點擊「Get API key」→「Create API key」。
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-5">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-600/20 border border-brand-500/30 text-brand-400 font-bold text-sm flex items-center justify-center">2</div>
+          <div class="pt-1">
+            <h3 class="font-semibold text-base mb-1.5">貼入 App 設定</h3>
+            <p class="text-sm text-white/50 leading-relaxed">開啟 Write Pilot → 偏好設定（<kbd class="text-brand-400 bg-brand-600/10 px-1.5 py-0.5 rounded text-xs">Cmd+,</kbd>），將 API Key 貼入對應欄位後按儲存。</p>
+          </div>
+        </div>
+
+        <div class="flex gap-5">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-600/20 border border-brand-500/30 text-brand-400 font-bold text-sm flex items-center justify-center">3</div>
+          <div class="pt-1">
+            <h3 class="font-semibold text-base mb-1.5">選擇工作區資料夾</h3>
+            <p class="text-sm text-white/50 leading-relaxed">使用 <kbd class="text-brand-400 bg-brand-600/10 px-1.5 py-0.5 rounded text-xs">Cmd+Shift+O</kbd> 開啟工作區，選擇你的寫作資料夾，即可開始創作。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-6"><div class="border-t border-white/10"></div></div>
+
+  <!-- INSTALL -->
+  <section id="install" class="py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs font-bold uppercase tracking-widest text-brand-400 mb-3">安裝指南</p>
+      <h2 class="text-4xl font-bold tracking-tight mb-14">兩步驟開始使用</h2>
+
+      <div class="flex flex-col gap-8">
+
+        <div class="flex gap-5">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-600/20 border border-brand-500/30 text-brand-400 font-bold text-sm flex items-center justify-center">1</div>
+          <div class="pt-1">
+            <h3 class="font-semibold text-base mb-1.5">下載 DMG</h3>
+            <p class="text-sm text-white/50 leading-relaxed">
+              前往 <a href="https://github.com/JakeChang/write-pilot/releases/latest" target="_blank" class="text-brand-400 hover:text-brand-300 transition-colors">Releases</a> 下載最新版本，開啟 DMG 並將 Write-Pilot.app 拖入 Applications 資料夾。
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-5">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-600/20 border border-brand-500/30 text-brand-400 font-bold text-sm flex items-center justify-center">2</div>
+          <div class="pt-1 w-full">
+            <h3 class="font-semibold text-base mb-1.5">移除隔離屬性 <span class="text-xs font-normal text-white/40 ml-1">（必要步驟）</span></h3>
+            <p class="text-sm text-white/50 leading-relaxed mb-3">由於 App 未經 Apple 公證，首次開啟前請在終端機執行以下指令，否則 macOS 會阻擋啟動：</p>
+            <div class="flex items-center justify-between gap-4 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3">
+              <code class="font-mono text-sm text-brand-400">xattr -cr /Applications/Write-Pilot.app</code>
+              <button onclick="copyCmd(this)" class="flex-shrink-0 text-xs text-white/40 border border-white/10 hover:border-brand-500/50 hover:text-brand-400 px-3 py-1.5 rounded-lg transition-all">複製</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-6"><div class="border-t border-white/10"></div></div>
+
+  <!-- SHORTCUTS -->
+  <section class="py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs font-bold uppercase tracking-widest text-brand-400 mb-3">鍵盤快捷鍵</p>
+      <h2 class="text-4xl font-bold tracking-tight mb-14">雙手不離鍵盤</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3">
+          <span class="text-sm text-white/70">儲存</span>
+          <kbd class="font-mono text-xs text-brand-400 bg-brand-600/10 px-2 py-1 rounded">Cmd+S</kbd>
+        </div>
+        <div class="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3">
+          <span class="text-sm text-white/70">開啟工作區</span>
+          <kbd class="font-mono text-xs text-brand-400 bg-brand-600/10 px-2 py-1 rounded">Cmd+Shift+O</kbd>
+        </div>
+        <div class="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3">
+          <span class="text-sm text-white/70">來源統計</span>
+          <kbd class="font-mono text-xs text-brand-400 bg-brand-600/10 px-2 py-1 rounded">Cmd+Shift+L</kbd>
+        </div>
+        <div class="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3">
+          <span class="text-sm text-white/70">AI 建議</span>
+          <kbd class="font-mono text-xs text-brand-400 bg-brand-600/10 px-2 py-1 rounded">Cmd+Shift+A</kbd>
+        </div>
+        <div class="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3">
+          <span class="text-sm text-white/70">切換預覽</span>
+          <kbd class="font-mono text-xs text-brand-400 bg-brand-600/10 px-2 py-1 rounded">Cmd+Shift+P</kbd>
+        </div>
+        <div class="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3">
+          <span class="text-sm text-white/70">AI 模式切換</span>
+          <kbd class="font-mono text-xs text-brand-400 bg-brand-600/10 px-2 py-1 rounded">Cmd+1/2/3</kbd>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-6"><div class="border-t border-white/10"></div></div>
+
+  <footer class="py-12 px-6 text-center text-sm text-white/30">
+    <p class="mb-2">
+      <a href="https://github.com/JakeChang/write-pilot" target="_blank" class="hover:text-white/60 transition-colors">GitHub</a>
+      <span class="mx-3">&middot;</span>
+      <a href="https://github.com/JakeChang/write-pilot/releases" target="_blank" class="hover:text-white/60 transition-colors">Releases</a>
+      <span class="mx-3">&middot;</span>
+      <a href="https://github.com/JakeChang/write-pilot/issues" target="_blank" class="hover:text-white/60 transition-colors">回報問題</a>
+    </p>
+    <p class="text-xs text-white/20">MIT License</p>
+  </footer>
+
+  <script>
+    function copyCmd(btn) {
+      navigator.clipboard.writeText('xattr -cr /Applications/Write-Pilot.app').then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '已複製';
+        btn.classList.add('text-green-400', 'border-green-500/50');
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.remove('text-green-400', 'border-green-500/50');
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
