@@ -1,0 +1,129 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-release:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set version from tag
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Install Sparkle tools
+        run: |
+          SPARKLE_VERSION="2.9.1"
+          curl -L "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz" -o sparkle.tar.xz
+          mkdir -p sparkle_tools
+          tar -xf sparkle.tar.xz -C sparkle_tools
+          echo "SPARKLE_BIN=$PWD/sparkle_tools/bin" >> $GITHUB_ENV
+
+      - name: Build universal app
+        run: |
+          xcodebuild \
+            -project Write-Pilot.xcodeproj \
+            -scheme Write-Pilot \
+            -configuration Release \
+            -derivedDataPath /tmp/build \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            MARKETING_VERSION=${{ env.VERSION }} \
+            CURRENT_PROJECT_VERSION=${{ env.VERSION }}
+
+      - name: Find built app
+        run: |
+          APP_PATH=$(find /tmp/build -name "Write-Pilot.app" -type d | head -1)
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+
+      - name: Create DMG
+        run: |
+          create-dmg \
+            --volname "Write Pilot" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "Write-Pilot.app" 150 185 \
+            --hide-extension "Write-Pilot.app" \
+            --app-drop-link 450 185 \
+            "Write-Pilot-${{ env.VERSION }}.dmg" \
+            "${{ env.APP_PATH }}"
+
+      - name: Sign DMG with Sparkle EdDSA key
+        run: |
+          echo "${{ secrets.SPARKLE_PRIVATE_KEY }}" | ${{ env.SPARKLE_BIN }}/sign_update \
+            --ed-key-file - \
+            "Write-Pilot-${{ env.VERSION }}.dmg" > sparkle_sig.txt
+          cat sparkle_sig.txt
+          ED_SIGNATURE=$(cat sparkle_sig.txt | grep -o 'edSignature="[^"]*"' | cut -d'"' -f2)
+          FILE_SIZE=$(stat -f%z "Write-Pilot-${{ env.VERSION }}.dmg")
+          echo "ED_SIGNATURE=$ED_SIGNATURE" >> $GITHUB_ENV
+          echo "FILE_SIZE=$FILE_SIZE" >> $GITHUB_ENV
+
+      - name: Update appcast.xml
+        run: |
+          RELEASE_DATE=$(date -u +"%a, %d %b %Y %H:%M:%S +0000")
+          DMG_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/Write-Pilot-${{ env.VERSION }}.dmg"
+
+          cat > appcast.xml << EOF
+          <?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <channel>
+              <title>Write Pilot</title>
+              <link>https://jakechang.github.io/write-pilot/appcast.xml</link>
+              <description>Write Pilot 更新記錄</description>
+              <language>zh-Hant</language>
+              <item>
+                <title>Version ${{ env.VERSION }}</title>
+                <pubDate>${RELEASE_DATE}</pubDate>
+                <sparkle:version>${{ env.VERSION }}</sparkle:version>
+                <sparkle:shortVersionString>${{ env.VERSION }}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+                <enclosure
+                  url="${DMG_URL}"
+                  length="${{ env.FILE_SIZE }}"
+                  type="application/x-apple-diskimage"
+                  sparkle:edSignature="${{ env.ED_SIGNATURE }}"
+                />
+              </item>
+            </channel>
+          </rss>
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Write-Pilot-${{ env.VERSION }}.dmg
+          generate_release_notes: true
+
+      - name: Prepare appcast for deployment
+        run: |
+          mkdir -p gh-pages-dist
+          cp appcast.xml gh-pages-dist/appcast.xml
+
+      - name: Deploy appcast.xml to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: gh-pages-dist
+          publish_branch: gh-pages
+          keep_files: true
