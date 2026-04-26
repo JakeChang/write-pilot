@@ -71,6 +71,9 @@ struct MarkdownTextView: NSViewRepresentable {
         // last wrote, so this is just SwiftUI re-rendering — no need to touch the textView.
         if text != context.coordinator.lastSyncedText {
             context.coordinator.isUpdating = true
+            // Clear undo stack — old undo actions reference stale text state
+            // and can cause EXC_BAD_ACCESS when invoked after a file switch or external reload.
+            textView.undoManager?.removeAllActions()
             let selectedRanges = textView.selectedRanges
             textView.string = text
             textView.selectedRanges = selectedRanges

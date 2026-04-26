@@ -55,6 +55,7 @@ struct EditorView: View {
                                 editorState.showFloatingMenu = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                             }
                         )
+                        .id(file.id)
                     }
 
                     // Floating menu — positioned at top-right, not overlapping text
